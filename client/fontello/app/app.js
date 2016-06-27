@@ -51,6 +51,15 @@ N.wire.once('navigate.done', { priority: -90 }, function () {
   N.app.fontFullName    = ko.observable();
   N.app.fontCopyright   = ko.observable();
 
+  // Set new code for each selected glyph when current encoding changed.
+  N.app.encoding.subscribe(() => {
+    let glyphs = N.app.fontsList.selectedGlyphs().slice();
+
+    // Reselect all currently selected glyph to update their codes.
+    glyphs.forEach(glyph => glyph.selected(false));
+    glyphs.forEach(glyph => glyph.selected(true));
+  });
+
   reset_font(); // init font params
 
   N.app.getConfig   = function () {
@@ -92,17 +101,6 @@ N.wire.once('navigate.done', { priority: -90 }, function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-// Helper. Set new code for each selected glyph using currect encoding.
-//
-function updateGlyphCodes() {
-  var glyphs = N.app.fontsList.selectedGlyphs();
-
-  // Reselect all currently selected glyph to update their codes.
-  _.invoke(glyphs, 'selected', false);
-  _.invoke(glyphs, 'selected', true);
-}
 
 
 // Assign actions handlers
@@ -170,25 +168,6 @@ N.wire.once('navigate.done', { priority: -10 }, function page_setup() {
       });
     });
     N.app.fontsList.unlock();
-  });
-
-  N.wire.on('cmd:toggle_hinting', function toggle_hinting() {
-    N.app.hinting(!N.app.hinting());
-  });
-
-  N.wire.on('cmd:set_encoding_pua', function set_encoding_pua() {
-    N.app.encoding('pua');
-    updateGlyphCodes();
-  });
-
-  N.wire.on('cmd:set_encoding_ascii', function set_encoding_ascii() {
-    N.app.encoding('ascii');
-    updateGlyphCodes();
-  });
-
-  N.wire.on('cmd:set_encoding_unicode', function set_encoding_unicode() {
-    N.app.encoding('unicode');
-    updateGlyphCodes();
   });
 
   N.wire.on('cmd:clear_custom_icons', function clear_custom_icons() {
